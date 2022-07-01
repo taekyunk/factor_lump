@@ -7,7 +7,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
-from pipe_util import FactorGroup
+from pipe_util import FactorLumpProp
+from pipe_util import FactorLumpN
 from pipe_util import find_outlier
 
 # sample data
@@ -18,8 +19,14 @@ df = sns.load_dataset('diamonds')
 df
 df.columns
 
+df['color'].value_counts()
+df['clarity'].value_counts()
+
+
 numeric_features = ['depth', 'table', 'carat']
-categorical_features = ['color', 'clarity']
+categorical_features1 = ['color']
+categorical_features2 = ['clarity']
+categorical_features = categorical_features1 + categorical_features2
 # note that this is *not* a list
 dependent_variable = 'price'
 
@@ -45,11 +52,6 @@ x_train1 = x_train[~idx]
 y_train1 = y_train[~idx]
 
 
-# outlier = OutlierRemover('price')
-# outlier.fit(dfe)
-# dfef = outlier.transform(dfe)
-# (dfe.shape, dfef.shape)
-
 
 # 2. rest of the pipeline
 
@@ -60,9 +62,16 @@ numeric_transformer = Pipeline(
     ]
 )
 
-categorical_transformer = Pipeline(
+categorical_transformer1= Pipeline(
     steps = [
-        ('fct_lump', FactorGroup(prop = 0.1)), 
+        ('fct_lump', FactorLumpProp(prop = 0.1)), 
+        ('one_hot_encoder', OneHotEncoder())
+    ]
+)
+
+categorical_transformer2 = Pipeline(
+    steps = [
+        ('fct_lump', FactorLumpN(top_n = 3)), 
         ('one_hot_encoder', OneHotEncoder())
     ]
 )
@@ -70,7 +79,8 @@ categorical_transformer = Pipeline(
 preprocessor = ColumnTransformer(
     transformers = [
         ('num', numeric_transformer, numeric_features),
-        ('cat', categorical_transformer, categorical_features)
+        ('cat1', categorical_transformer1, categorical_features1),
+        ('cat2', categorical_transformer2, categorical_features2)
     ]
 )
 
@@ -82,3 +92,9 @@ pipe = Pipeline(
 
 # split the data here
 
+pipe.fit(x_train)
+
+x_train_updated = pipe.transform(x_train)
+x_train_updated
+x_test_updated = pipe.transform(x_test)
+x_test_updated
