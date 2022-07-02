@@ -99,26 +99,26 @@ class FeatureImportance:
                 print('\tn_orig_feature_names:', len(orig_feature_names))
 
             if transformer == 'drop':
-                    
                 continue
                 
             if isinstance(transformer, Pipeline):
                 # if pipeline, get the last transformer in the Pipeline
                 transformer = transformer.steps[-1][1]
 
-            if hasattr(transformer, 'get_feature_names'):
-
-                if 'input_features' in transformer.get_feature_names.__code__.co_varnames:
-
-                    names = list(transformer.get_feature_names(orig_feature_names))
-
+            if hasattr(transformer, 'get_feature_names_out'):
+                if 'input_features' in transformer.get_feature_names_out.__code__.co_varnames:
+                    names = list(transformer.get_feature_names_out(orig_feature_names))
                 else:
+                    names = list(transformer.get_feature_names_out())
 
+            elif hasattr(transformer, 'get_feature_names'):
+                if 'input_features' in transformer.get_feature_names.__code__.co_varnames:
+                    names = list(transformer.get_feature_names(orig_feature_names))
+                else:
                     names = list(transformer.get_feature_names())
 
             elif hasattr(transformer,'indicator_') and transformer.add_indicator:
                 # is this transformer one of the imputers & did it call the MissingIndicator?
-
                 missing_indicator_indices = transformer.indicator_.features_
                 missing_indicators = [orig_feature_names[idx] + '_missing_flag'\
                                       for idx in missing_indicator_indices]
@@ -131,7 +131,6 @@ class FeatureImportance:
                                       for idx in missing_indicator_indices]
 
             else:
-
                 names = orig_feature_names
 
             if verbose: 
