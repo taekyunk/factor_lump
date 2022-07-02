@@ -13,7 +13,6 @@ def find_outlier(s, cutoff = 2):
     idx = np.where(abs(zs) >= cutoff, True, False)
     return idx
 
-
 def find_prop(s):
     if not isinstance(s, pd.Series):
         s = pd.Series(s)
@@ -28,26 +27,31 @@ def find_prop(s):
     )
     return dfs
 
-def keep_level_by_prop(s, prop = 0.01):
+def keep_level_by_prop(s, prop):
     df_freq = find_prop(s)
     key_list = df_freq.loc[df_freq['prop'] >= prop, 'key'].to_list()
     return key_list
 
-def build_default_dict(s, label = 'zzz'):
+def build_default_dict(s, label):
     def default_key():
         return label
     base_dict = dict(zip(s, s))
     default_dict = defaultdict(default_key, base_dict)
     return default_dict
 
-def build_mapping_by_prop(s, prop = 0.01, label = 'zzz'):
+def build_mapping_by_prop(s, prop, label):
     levels_to_keep = keep_level_by_prop(s, prop)
     d = build_default_dict(levels_to_keep, label)
     return d
 
 class FactorLumpProp(BaseEstimator, TransformerMixin):
-   # initializer 
-    def __init__(self, prop, label = 'zzz'):
+    """
+    Similar feature as fct_lump_prop() from forcats package in R
+    arguments:
+        prop = (0, 1] e.g. 0.05. Group factor levels less than 0.01 into one
+        label = 'the_other' by default. Label to group
+    """
+    def __init__(self, prop = 0.05, label = 'the_other'):
         self.prop = prop
         self.label = label
 
@@ -72,20 +76,25 @@ class FactorLumpProp(BaseEstimator, TransformerMixin):
             X[var] = X[var].map(d)
         return X
 
-def keep_level_by_top_n(s, top_n = 5):
+def keep_level_by_top_n(s, top_n):
     df_freq = find_prop(s)
     key_list = df_freq.iloc[:top_n]['key'].to_list()
     return key_list
 
-def build_mapping_by_top_n(s, top_n = 5, label = 'zzz'):
+def build_mapping_by_top_n(s, top_n, label):
     levels_to_keep = keep_level_by_top_n(s, top_n = top_n)
     d = build_default_dict(levels_to_keep, label = label)
     return d
 
 
 class FactorLumpN(BaseEstimator, TransformerMixin):
-   # initializer 
-    def __init__(self, top_n = 5, label = 'zzz'):
+    """
+    Similar feature as fct_lump_n() from forcats package in R
+    arguments:
+        top_n = 5 by default. The number of top factors to keep
+        label = 'the_other' by default. Label to group
+    """
+    def __init__(self, top_n = 5, label = 'the_other'):
         self.top_n = top_n
         self.label = label
 
