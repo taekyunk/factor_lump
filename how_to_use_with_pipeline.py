@@ -33,6 +33,7 @@ categorical_features = categorical_features1 + categorical_features2
 dependent_variable = 'price'
 
 # test changing field 
+
 # this does not affect pipeline 
 # df['depth'] = df['depth'].astype(str)
 
@@ -105,6 +106,8 @@ x_train_updated
 x_test_updated = pipe.transform(x_test)
 x_test_updated
 
+# with sklearn 1.1 and python 3.8, this works
+# pipe.get_feature_names_out()
 
 # only one fit ------------------------------
 
@@ -123,10 +126,16 @@ pipe_rf.get_params()
 pipe_rf.named_steps
 pipe_rf.predict(x_test)
 
+from feature_importance import FeatureImportance
+fi = FeatureImportance(pipe_rf)
+fi
+# name is sort of incorrect but at least level works
+fi.get_feature_importance()
+fi.get_feature_names()
 
 # save
-write_cp(pipe_rf, 'test.pkl')
-new_pipe = read_cp('test.pkl')
+write_cp(pipe_rf, 'rf1.pkl')
+new_pipe = read_cp('rf1.pkl')
 new_pipe.predict(x_test)
 
 
@@ -205,8 +214,11 @@ type(new_model)
 new_model.predict(x_test)
 
 
+
+#
+
 # best_model.get_feature_names_out()
-# best_model[:-1].get_feature_names_out()
+best_model[:-1].get_feature_names_out()
 
 # pipe.get_feature_names_out()
 # pipe[:-1].get_feature_names_out()
