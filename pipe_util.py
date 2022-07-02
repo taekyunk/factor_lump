@@ -94,7 +94,6 @@ class FactorLumpN(BaseEstimator, TransformerMixin):
         var_list = X.columns
         mapping_dict = dict()
         for var in var_list:
-            print(var)
             d = build_mapping_by_top_n(X[var], top_n = self.top_n, label = self.label)
             mapping_dict[var] = d
         self.mapping_dict = mapping_dict
