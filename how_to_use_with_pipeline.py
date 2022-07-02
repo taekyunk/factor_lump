@@ -10,6 +10,8 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from pipe_util import FactorLumpProp
 from pipe_util import FactorLumpN
 from pipe_util import find_outlier
+from pipe_util import read_cp
+from pipe_util import write_cp
 
 # sample data
 import seaborn as sns
@@ -30,6 +32,9 @@ categorical_features = categorical_features1 + categorical_features2
 # note that this is *not* a list
 dependent_variable = 'price'
 
+# test changing field 
+# this does not affect pipeline 
+# df['depth'] = df['depth'].astype(str)
 
 # split data
 from sklearn.model_selection import train_test_split
@@ -42,6 +47,7 @@ x_train, x_test, y_train, y_test = train_test_split(
 )
 
 x_train
+x_train.info()
 
 # 1. remove outlier from training only
 
@@ -98,3 +104,119 @@ x_train_updated = pipe.transform(x_train)
 x_train_updated
 x_test_updated = pipe.transform(x_test)
 x_test_updated
+
+
+# only one fit ------------------------------
+
+from sklearn.ensemble import RandomForestRegressor
+
+pipe_rf = Pipeline(
+    steps = [
+        ('preprocessor', preprocessor),
+        ('rf', RandomForestRegressor())
+    ]
+)
+
+pipe_rf.fit(x_train, y_train)
+
+pipe_rf.get_params()
+pipe_rf.named_steps
+pipe_rf.predict(x_test)
+
+
+# save
+write_cp(pipe_rf, 'test.pkl')
+new_pipe = read_cp('test.pkl')
+new_pipe.predict(x_test)
+
+
+# GridsearchCV() with pipeline -------------------------------------------------
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestRegressor
+
+
+pipe_rf = Pipeline(
+    steps = [
+        ('preprocessor', preprocessor),
+        ('rf', RandomForestRegressor())
+    ]
+)
+
+# find parameter names
+pipe_rf.get_params().keys()
+
+# note the prefix `rf__`
+param_grid = {
+    'rf__max_depth': [2, 4, 6],
+    'rf__min_samples_split': [2, 3, 4],
+    'rf__n_estimators': [100, 120]
+}
+
+
+crf = GridSearchCV(pipe_rf, param_grid, n_jobs = 2)
+crf.fit(x_train, y_train)
+
+crf.best_score_
+crf.best_params_
+crf.cv_results_
+
+y_test_pred = crf.predict(x_test)
+y_test_pred
+
+
+
+best_model = crf.best_estimator_
+best_model
+str(best_model)
+best_model.fit(x_train, y_train)
+y_test_pred = best_model.predict(x_test)
+y_test_pred
+
+
+# model comparison with metrics
+# - mape, r2
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_absolute_percentage_error as mape
+r2_score(y_test, y_test_pred)
+mape(y_test, y_test_pred)
+
+
+
+# variable importance
+from feature_importance import FeatureImportance
+# need to extract a pipeline, not a GridSearchCV object
+fi = FeatureImportance(crf.best_estimator_, verbose=True)
+fi
+fi.get_selected_features()
+fi.get_feature_importance()
+# need plotly for this
+# feature_importance.plot(top_n_features=25)
+
+# to do
+
+
+
+
+
+# save and load pipeline
+write_cp(best_model, 'best_model.pkl')
+new_model = read_cp('best_model.pkl')
+type(new_model)
+new_model.predict(x_test)
+
+
+# best_model.get_feature_names_out()
+# best_model[:-1].get_feature_names_out()
+
+# pipe.get_feature_names_out()
+# pipe[:-1].get_feature_names_out()
+
+# how to investigate pipeline object
+pipe.named_steps
+type(pipe.named_steps)
+pipe.named_steps['preprocessor']
+
+# this not helpful
+pipe.feature_names_in_
+crf.feature_names_in_
+
