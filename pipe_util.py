@@ -1,17 +1,32 @@
-
 import pandas as pd
 import numpy as np
-from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
 from collections import defaultdict
 from sklearn.utils.validation import check_is_fitted
 
+from scipy import stats
+import cloudpickle
+
+# note: need to save/load with clouldpickle for some reason
+# pickle or joblib did not work
+def write_cp(obj, file_name):
+   with open(file_name, 'wb') as f:
+    cloudpickle.dump(obj, f)
+    return None
+
+def read_cp(file_name):
+    with open(file_name, 'rb') as f:
+        value = cloudpickle.load(f)
+    return value
 
 def find_outlier(s, cutoff = 2):
     assert isinstance(s, pd.Series)
     zs = stats.zscore(s, nan_policy='omit')
     idx = np.where(abs(zs) >= cutoff, True, False)
     return idx
+
+
+# custom transformer and its supporting functions
 
 def find_prop(s):
     if not isinstance(s, pd.Series):
