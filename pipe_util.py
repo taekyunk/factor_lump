@@ -69,10 +69,12 @@ class FactorLumpProp(BaseEstimator, TransformerMixin):
     def __init__(self, prop = 0.05, label = 'the_other'):
         self.prop = prop
         self.label = label
+        self.var_list = None
 
     def fit(self, X, y = None):
         assert isinstance(X, pd.DataFrame)
         var_list = X.columns
+        self.columns = var_list
         mapping_dict = dict()
         for var in var_list:
             d = build_mapping_by_prop(X[var], prop = self.prop, label = self.label)
@@ -90,6 +92,9 @@ class FactorLumpProp(BaseEstimator, TransformerMixin):
             d = self.mapping_dict[var]
             X[var] = X[var].map(d)
         return X
+
+    def get_feature_names_out(self, input_features = None):
+        return self.var_list
 
 def keep_level_by_top_n(s, top_n):
     df_freq = find_prop(s)
@@ -112,10 +117,12 @@ class FactorLumpN(BaseEstimator, TransformerMixin):
     def __init__(self, top_n = 5, label = 'the_other'):
         self.top_n = top_n
         self.label = label
+        self.var_list = None
 
     def fit(self, X, y = None):
         assert isinstance(X, pd.DataFrame)
         var_list = X.columns
+        self.var_list = var_list
         mapping_dict = dict()
         for var in var_list:
             d = build_mapping_by_top_n(X[var], top_n = self.top_n, label = self.label)
@@ -133,3 +140,6 @@ class FactorLumpN(BaseEstimator, TransformerMixin):
             d = self.mapping_dict[var]
             X[var] = X[var].map(d)
         return X
+
+    def get_feature_names_out(self, input_features = None):
+        return self.var_list
