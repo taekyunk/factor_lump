@@ -1,7 +1,11 @@
-# code from Kyle Glide
+# based on the code from Kyle Glide
 # https://www.kaggle.com/code/kylegilde/extracting-scikit-feature-names-importances/notebook
-
-# Modified to remove the dependency on plotly 
+#
+# updated
+# - add a condition to check get_feature_names_out() first
+#    https://github.com/scikit-learn/scikit-learn/issues/12525#issuecomment-1071203398
+# - Modified to remove the dependency on plotly 
+# - check for pipeline in __init__
 # by Taekyun Kim (taekyunk@gmail.com)
 
 import numpy as np  
@@ -9,7 +13,6 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.utils.validation import check_is_fitted
-# import plotly.express as px
 
 
 class FeatureImportance:
@@ -253,103 +256,3 @@ class FeatureImportance:
         return feature_importance
         
     
-    # def plot(self, top_n_features=100, rank_features=True, max_scale=True, 
-    #          display_imp_values=True, display_imp_value_decimals=1,
-    #          height_per_feature=25, orientation='h', width=750, height=None, 
-    #          str_pad_width=15, yaxes_tickfont_family='Courier New', 
-    #          yaxes_tickfont_size=15):
-    #     """
-
-    #     Plot the Feature Names & Importances 
-
-
-    #     Parameters
-    #     ----------
-
-    #     top_n_features : the number of features to plot, default is 100
-    #     rank_features : whether to rank the features with integers, default is True
-    #     max_scale : Should the importance values be scaled by the maximum value & mulitplied by 100?  Default is True.
-    #     display_imp_values : Should the importance values be displayed? Default is True.
-    #     display_imp_value_decimals : If display_imp_values is True, how many decimal places should be displayed. Default is 1.
-    #     height_per_feature : if height is None, the plot height is calculated by top_n_features * height_per_feature. 
-    #     This allows all the features enough space to be displayed
-    #     orientation : the plot orientation, 'h' (default) or 'v'
-    #     width :  the width of the plot, default is 500
-    #     height : the height of the plot, the default is top_n_features * height_per_feature
-    #     str_pad_width : When rank_features=True, this number of spaces to add between the rank integer and feature name. 
-    #         This will enable the rank integers to line up with each other for easier reading. 
-    #         Default is 15. If you have long feature names, you can increase this number to make the integers line up more.
-    #         It can also be set to 0.
-    #     yaxes_tickfont_family : the font for the feature names. Default is Courier New.
-    #     yaxes_tickfont_size : the font size for the feature names. Default is 15.
-
-    #     Returns
-    #     -------
-    #     plot
-
-    #     """
-    #     if height is None:
-    #         height = top_n_features * height_per_feature
-            
-    #     # prep the data
-        
-    #     all_importances = self.get_feature_importance()
-    #     n_all_importances = len(all_importances)
-        
-    #     plot_importances_df =\
-    #         all_importances\
-    #         .nlargest(top_n_features)\
-    #         .sort_values()\
-    #         .to_frame('value')\
-    #         .rename_axis('feature')\
-    #         .reset_index()
-                
-    #     if max_scale:
-    #         plot_importances_df['value'] = \
-    #                             plot_importances_df.value.abs() /\
-    #                             plot_importances_df.value.abs().max() * 100
-            
-    #     self.plot_importances_df = plot_importances_df.copy()
-        
-    #     if len(all_importances) < top_n_features:
-    #         title_text = 'All Feature Importances'
-    #     else:
-    #         title_text = f'Top {top_n_features} (of {n_all_importances}) Feature Importances'       
-        
-    #     if rank_features:
-    #         padded_features = \
-    #             plot_importances_df.feature\
-    #             .str.pad(width=str_pad_width)\
-    #             .values
-            
-    #         ranked_features =\
-    #             plot_importances_df.index\
-    #             .to_series()\
-    #             .sort_values(ascending=False)\
-    #             .add(1)\
-    #             .astype(str)\
-    #             .str.cat(padded_features, sep='. ')\
-    #             .values
-
-    #         plot_importances_df['feature'] = ranked_features
-        
-    #     if display_imp_values:
-    #         text = plot_importances_df.value.round(display_imp_value_decimals)
-    #     else:
-    #         text = None
-
-    #     # create the plot 
-        
-    #     fig = px.bar(plot_importances_df, 
-    #                  x='value', 
-    #                  y='feature',
-    #                  orientation=orientation, 
-    #                  width=width, 
-    #                  height=height,
-    #                  text=text)
-    #     fig.update_layout(title_text=title_text, title_x=0.5) 
-    #     fig.update(layout_showlegend=False)
-    #     fig.update_yaxes(tickfont=dict(family=yaxes_tickfont_family, 
-    #                                    size=yaxes_tickfont_size),
-    #                      title='')
-    #     fig.show()
