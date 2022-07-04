@@ -16,8 +16,10 @@ from sklearn.preprocessing import FunctionTransformer, StandardScaler, OneHotEnc
 from category_encoders import TargetEncoder
 
 # local modules
-from pipe_util import FactorLumpProp, FactorLumpN
-from pipe_util import read_cp, write_cp
+from pipe_util import FactorLumpProp
+from pipe_util import FactorLumpN
+from pipe_util import read_cp
+from pipe_util import write_cp
 from pipe_util import find_outlier
 from pipe_util import find_prop
 from pipe_util import find_lift
