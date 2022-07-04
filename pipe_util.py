@@ -7,6 +7,7 @@ from sklearn.utils.validation import check_is_fitted
 from scipy import stats
 import cloudpickle
 
+# utility ----------------------------------------------------------------------
 # note: need to save/load with clouldpickle for some reason
 # pickle or joblib did not work
 def write_cp(obj, file_name):
@@ -19,14 +20,25 @@ def read_cp(file_name):
         value = cloudpickle.load(f)
     return value
 
-def find_outlier(s, cutoff = 2):
+def find_outlier(s, cutoff = 3):
     assert isinstance(s, pd.Series)
     zs = stats.zscore(s, nan_policy='omit')
     idx = np.where(abs(zs) >= cutoff, True, False)
     return idx
 
+def find_lift(y_true, y_score, n_bins = 10, fn = [np.mean, np.median]):
+   df = pd.DataFrame({'y_true': y_true, 'y_score': y_score}) 
+   dfs = (
+        df
+        .assign(group = pd.qcut(y_score, q = n_bins))
+        .groupby('group')
+        .agg(fn)
+        .reset_index()
+   )
+   dfs.columns = dfs.columns.map('_'.join)
+   return dfs
 
-# custom transformer and its supporting functions
+# custom transformer and its supporting functions ------------------------------
 
 def find_prop(s):
     if not isinstance(s, pd.Series):
