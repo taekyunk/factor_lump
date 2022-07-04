@@ -12,7 +12,7 @@ from sklearn.metrics import mean_absolute_percentage_error as mape
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import FunctionTransformer, StandardScaler, OneHotEncoder
 from category_encoders import TargetEncoder
 
 # local modules
@@ -59,7 +59,8 @@ x_train.info()
 
 # group features by treatment
 var_numeric = ['depth', 'table', 'carat']
-var_categorical_group = ['color', 'clarity']
+var_categorical_group = ['clarity']
+var_categorical_binary = ['color']
 var_categorical_target = ['cut']
 # note that this is *not* a list
 dependent_variable = 'price'
@@ -78,6 +79,11 @@ categorical_transformer_group = Pipeline(
     ]
 )
 
+categorical_transformer_binary = Pipeline(
+    steps = [
+        ('as_binary', FunctionTransformer(lambda x: (x == 'G').astype(int))), 
+    ]
+)
 categorical_transformer_target = Pipeline(
     steps = [
         # use recommended settings from 
@@ -90,6 +96,7 @@ preprocessor = ColumnTransformer(
     transformers = [
         ('num', numeric_transformer, var_numeric),
         ('cat_group', categorical_transformer_group, var_categorical_group),
+        ('cat_binary', categorical_transformer_binary, var_categorical_binary),
         ('cat_target', categorical_transformer_target, var_categorical_target),
     ]
 )
