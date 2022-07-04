@@ -26,7 +26,7 @@ def find_outlier(s, cutoff = 3):
     idx = np.where(abs(zs) >= cutoff, True, False)
     return idx
 
-def find_lift(y_true, y_score, n_bins = 10, fn = [np.mean, np.median]):
+def find_lift(y_true, y_score, n_bins = 10, fn = [len, np.mean, np.median]):
    df = pd.DataFrame({'y_true': y_true, 'y_score': y_score}) 
    dfs = (
         df
@@ -39,6 +39,12 @@ def find_lift(y_true, y_score, n_bins = 10, fn = [np.mean, np.median]):
    return dfs
 
 # custom transformer and its supporting functions ------------------------------
+# Note
+# With a newer version of sklearn, OneHotEncoder() will have options like
+# OneHotEncoder(max_categories = 3)
+# OneHotEncoder(min_frequency = 0.05)
+# https://github.com/scikit-learn/scikit-learn/pull/16018
+# Accepted on 2022-03-25
 
 def find_prop(s):
     if not isinstance(s, pd.Series):
