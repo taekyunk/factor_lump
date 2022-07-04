@@ -16,6 +16,7 @@ from sklearn.preprocessing import FunctionTransformer, StandardScaler, OneHotEnc
 from category_encoders import TargetEncoder
 
 # local modules
+# OneHotEncoder() will have max_categories and min_frequency with a newer version
 from pipe_util import FactorLumpProp
 from pipe_util import FactorLumpN
 from pipe_util import read_cp
@@ -77,7 +78,7 @@ numeric_transformer = Pipeline(
 categorical_transformer_group = Pipeline(
     steps = [
         ('fct_lump', FactorLumpN(top_n = 3)), 
-        ('one_hot_encoder', OneHotEncoder())
+        ('one_hot_encoder', OneHotEncoder(drop='if_binary'))
     ]
 )
 
