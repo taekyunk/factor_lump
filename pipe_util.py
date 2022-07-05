@@ -168,13 +168,21 @@ class FactorLumpN(BaseEstimator, TransformerMixin):
 
 class DropHighlyCorrelated(BaseEstimator, TransformerMixin):
     
-    def __init__(self, threshold = 0.9):
+    def __init__(self, threshold = 0.9, candidate = None):
         assert 0 <= threshold <= 1
         self.threshold = threshold
+        self.candidate = candidate
 
     def fit(self, X, y=None):
+        # copy to find remaining columns
+        Xc = X.copy()
+
+        if self.candidate:
+            X = pd.DataFrame(X[self.candidate])
+        else:
+            X = pd.DataFrame(X)
+
         correlated_features = set()  
-        X = pd.DataFrame(X)
         corr_matrix = X.corr()
         for i in range(len(corr_matrix.columns)):
             for j in range(i):
@@ -182,9 +190,11 @@ class DropHighlyCorrelated(BaseEstimator, TransformerMixin):
                     colname = corr_matrix.columns[i]  # getting the name of column
                     correlated_features.add(colname)
         self.correlated_features = correlated_features
+
         # also keep uncorrelated feature names
         uncorrelated_features = (
-            X.drop(labels = self.correlated_features, axis = 'columns')
+            Xc
+            .drop(labels = self.correlated_features, axis = 'columns')
             .columns
             .to_list()
             )
