@@ -6,6 +6,9 @@ Custom transformer to work with categorical variables
 - `FactorLumpProp(prop = 0.05)`: Similar to `fct_lump_prop()` in R
 - `FactorLumpN(top_n=5)`: Similar to `fct_lump_n()` in R
 
+Custom transformer `DropHighlyCorrelated(threshold, candidate)`
+- Adapted from [stackoverflow](https://stackoverflow.com/a/66238276/4475353)
+
 Other utility functions
 - `read_cp()`: read object using cloudpickle
 - `write_cp()`: write object using cloudpickle
@@ -15,6 +18,8 @@ Other utility functions
 Class `FeatureImportance()` adapted from 
 - [notebook](https://www.kaggle.com/code/kylegilde/extracting-scikit-feature-names-importances/notebook)
 - [github discussion](https://github.com/scikit-learn/scikit-learn/issues/12525#issuecomment-1071203398)
+
+
 
 # Note
 
