@@ -68,8 +68,10 @@ var_categorical_target = ['cut']
 # note that this is *not* a list
 dependent_variable = 'price'
 
+# build one transformer by feature group
 numeric_transformer = Pipeline(
     steps = [
+        # to impute with mode, use strategy='most_frequent'
         ('simple_imputer', SimpleImputer(strategy = 'mean')), 
         ('scaler', StandardScaler())
     ]
@@ -95,6 +97,7 @@ categorical_transformer_target = Pipeline(
     ]
 )
 
+# combine transformers into ColumnTransformer
 preprocessor = ColumnTransformer(
     transformers = [
         ('num', numeric_transformer, var_numeric),
@@ -104,6 +107,7 @@ preprocessor = ColumnTransformer(
     ]
 )
 
+# Build a final pipeline by modeling step
 pipe = Pipeline(
     steps = [
         ('preprocessor', preprocessor),
