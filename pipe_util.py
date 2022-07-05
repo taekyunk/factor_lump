@@ -161,3 +161,42 @@ class FactorLumpN(BaseEstimator, TransformerMixin):
 
     def get_feature_names_out(self, input_features = None):
         return self.var_list
+    
+
+# adapted from
+# https://stackoverflow.com/a/66238276/4475353
+
+class DropHighlyCorrelated(BaseEstimator, TransformerMixin):
+    
+    def __init__(self, threshold = 0.9):
+        assert 0 <= threshold <= 1
+        self.threshold = threshold
+
+    def fit(self, X, y=None):
+        correlated_features = set()  
+        X = pd.DataFrame(X)
+        corr_matrix = X.corr()
+        for i in range(len(corr_matrix.columns)):
+            for j in range(i):
+                if abs(corr_matrix.iloc[i, j]) > self.threshold: # we are interested in absolute coeff value
+                    colname = corr_matrix.columns[i]  # getting the name of column
+                    correlated_features.add(colname)
+        self.correlated_features = correlated_features
+        # also keep uncorrelated feature names
+        uncorrelated_features = (
+            X.drop(labels = self.correlated_features, axis = 'columns')
+            .columns
+            .to_list()
+            )
+        self.uncorrelated_features = uncorrelated_features
+        return self
+
+    def transform(self, X, y=None):
+        check_is_fitted(self, ['correlated_features', 'uncorrelated_features'])
+        df = (pd.DataFrame(X)).drop(labels=self.correlated_features, axis='columns')
+        return df
+
+    def get_feature_names_out(self):
+        check_is_fitted(self, ['correlated_features'])
+        return self.uncorrelated_features
+    
