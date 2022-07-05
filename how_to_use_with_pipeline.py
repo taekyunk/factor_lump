@@ -6,16 +6,27 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from category_encoders import TargetEncoder
+
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestRegressor
+
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_absolute_percentage_error as mape
 
 from pipe_util import FactorLumpProp
 from pipe_util import FactorLumpN
 from pipe_util import find_outlier
 from pipe_util import read_cp
 from pipe_util import write_cp
+from pipe_util import find_prop
 
+from feature_importance import FeatureImportance
+
+#-------------------------------------------------------------------------------
 # sample data
 import seaborn as sns
-sns.get_dataset_names()
 
 df = sns.load_dataset('diamonds')
 df
@@ -24,6 +35,8 @@ df.columns
 df['color'].value_counts()
 df['clarity'].value_counts()
 
+#-------------------------------------------------------------------------------
+# group features by treatment
 
 numeric_features = ['depth', 'table', 'carat']
 categorical_features1 = ['color']
@@ -38,7 +51,6 @@ dependent_variable = 'price'
 # df['depth'] = df['depth'].astype(str)
 
 # split data
-from sklearn.model_selection import train_test_split
 
 x_train, x_test, y_train, y_test = train_test_split(
     df[numeric_features + categorical_features],
@@ -60,10 +72,11 @@ y_train1 = y_train[~idx]
 
 
 
-# 2. rest of the pipeline
+# 2. build transformers for each variable group that gets different treatment
 
 numeric_transformer = Pipeline(
     steps = [
+        # to impute with mode, use strategy='most_frequent'
         ('simple_imputer', SimpleImputer(strategy = 'mean')), 
         ('scaler', StandardScaler())
     ]
@@ -83,6 +96,7 @@ categorical_transformer2 = Pipeline(
     ]
 )
 
+# combine each transfomers using ColumnTransformer
 preprocessor = ColumnTransformer(
     transformers = [
         ('num', numeric_transformer, numeric_features),
@@ -111,7 +125,6 @@ x_test_updated
 
 # only one fit ------------------------------
 
-from sklearn.ensemble import RandomForestRegressor
 
 pipe_rf = Pipeline(
     steps = [
@@ -126,7 +139,6 @@ pipe_rf.get_params()
 pipe_rf.named_steps
 pipe_rf.predict(x_test)
 
-from feature_importance import FeatureImportance
 fi = FeatureImportance(pipe_rf)
 fi
 # name is sort of incorrect but at least level works
@@ -140,8 +152,6 @@ new_pipe.predict(x_test)
 
 
 # GridsearchCV() with pipeline -------------------------------------------------
-from sklearn.model_selection import GridSearchCV
-from sklearn.ensemble import RandomForestRegressor
 
 
 pipe_rf = Pipeline(
@@ -184,15 +194,12 @@ y_test_pred
 
 # model comparison with metrics
 # - mape, r2
-from sklearn.metrics import r2_score
-from sklearn.metrics import mean_absolute_percentage_error as mape
 r2_score(y_test, y_test_pred)
 mape(y_test, y_test_pred)
 
 
 
 # variable importance
-from feature_importance import FeatureImportance
 # need to extract a pipeline, not a GridSearchCV object
 fi = FeatureImportance(crf.best_estimator_, verbose=True)
 fi
