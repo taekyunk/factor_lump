@@ -21,6 +21,7 @@ from category_encoders import TargetEncoder
 # OneHotEncoder() will have max_categories and min_frequency with a newer version
 from pipe_util import FactorLumpProp
 from pipe_util import FactorLumpN
+from pipe_util import DropHighlyCorrelated
 from pipe_util import read_cp
 from pipe_util import write_cp
 from pipe_util import find_outlier
@@ -45,6 +46,16 @@ df.info()
 idx = find_outlier(df['price'], cutoff=3)
 df = df[~idx]
 
+# drop correlated --------------------------------------------------------------
+
+drop_correlated = DropHighlyCorrelated(
+    threshold=0.85, 
+    # select numeric variables here
+    candidate = ['depth', 'table', 'carat', 'x', 'y', 'z'])
+df = drop_correlated.fit_transform(df)
+df
+# dropped features
+drop_correlated.correlated_features
 
 # split data -------------------------------------------------------------------
 
@@ -59,8 +70,7 @@ x_train
 x_train.info()
 
 
-# build pipeline 
-
+# build pipeline ---------------------------------------------------------------
 
 # group features by treatment
 var_numeric = ['depth', 'table', 'carat']
