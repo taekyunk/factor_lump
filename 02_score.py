@@ -12,12 +12,17 @@ from sklearn.metrics import mean_absolute_percentage_error as mape
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import FunctionTransformer
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import OneHotEncoder
 from category_encoders import TargetEncoder
 
 # local modules
-from pipe_util import FactorLumpProp, FactorLumpN
-from pipe_util import read_cp, write_cp
+# OneHotEncoder() will have max_categories and min_frequency with a newer version
+from pipe_util import FactorLumpProp
+from pipe_util import FactorLumpN
+from pipe_util import read_cp
+from pipe_util import write_cp
 from pipe_util import find_outlier
 from pipe_util import find_prop
 from pipe_util import find_lift
