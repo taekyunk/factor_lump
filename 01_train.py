@@ -67,8 +67,6 @@ var_numeric = ['depth', 'table', 'carat']
 var_categorical_group = ['clarity']
 var_categorical_binary = ['color']
 var_categorical_target = ['cut']
-# note that this is *not* a list
-dependent_variable = 'price'
 
 # build one transformer by feature group
 numeric_transformer = Pipeline(
