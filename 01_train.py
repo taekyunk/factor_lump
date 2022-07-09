@@ -34,9 +34,7 @@ from feature_importance import FeatureImportance
 
 # load data --------------------------------------------------------------------
 # sample data
-import seaborn as sns
-
-df = sns.load_dataset('diamonds')
+df = pd.read_csv('diamonds.csv')
 df
 df.info()
 
