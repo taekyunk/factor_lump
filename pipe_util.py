@@ -11,9 +11,9 @@ import cloudpickle
 # note: need to save/load with clouldpickle for some reason
 # pickle or joblib did not work
 def write_cp(obj, file_name):
-   with open(file_name, 'wb') as f:
-    cloudpickle.dump(obj, f)
-    return None
+    with open(file_name, 'wb') as f:
+        cloudpickle.dump(obj, f)
+        return None
 
 def read_cp(file_name):
     with open(file_name, 'rb') as f:
