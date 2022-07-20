@@ -29,7 +29,9 @@ from pipe_util import find_prop
 from pipe_util import find_lift
 
 # variable importance
-from feature_names import get_feature_names
+# from feature_names import get_feature_names
+from feature_names2 import get_feature_names
+from feature_importance import FeatureImportance
 
 from plotnine import ggplot, aes, geom_point, geom_line, facet_wrap
 
@@ -127,6 +129,18 @@ pp = preprocessor
 x_train_mat = pp.fit_transform(x_train, y_train)
 
 get_feature_names(pp)
+
+
+# Build a final pipeline by modeling step
+pipe = Pipeline(
+    steps = [
+        ('preprocessor', preprocessor),
+    ]
+)
+pipe.fit(x_train, y_train)
+
+fi = FeatureImportance(pipe)
+fi.get_feature_names()
 
 # CV ---------------------------------------------------------------------------
 

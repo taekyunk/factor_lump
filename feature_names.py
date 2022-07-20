@@ -32,21 +32,22 @@ def get_feature_names(column_transformer):
         if transformer == 'drop':
             continue
             
-        if isinstance(transformer, Pipeline):
-            # if pipeline, get the last transformer in the Pipeline
-            transformer = transformer.steps[-1][1]
+        # if isinstance(transformer, Pipeline):
+        #     # if pipeline, get the last transformer in the Pipeline
+        #     transformer = transformer.steps[-1][1]
 
-        if hasattr(transformer, 'get_feature_names_out'):
-            if 'input_features' in transformer.get_feature_names_out.__code__.co_varnames:
-                names = list(transformer.get_feature_names_out(orig_feature_names))
-            else:
-                names = list(transformer.get_feature_names_out())
 
-        elif hasattr(transformer, 'get_feature_names'):
+        if hasattr(transformer, 'get_feature_names'):
             if 'input_features' in transformer.get_feature_names.__code__.co_varnames:
                 names = list(transformer.get_feature_names(orig_feature_names))
             else:
                 names = list(transformer.get_feature_names())
+
+        # elif hasattr(transformer, 'get_feature_names_out'):
+        #     if 'input_features' in transformer.get_feature_names_out.__code__.co_varnames:
+        #         names = list(transformer.get_feature_names_out(orig_feature_names))
+        #     else:
+        #         names = list(transformer.get_feature_names_out())
 
         elif hasattr(transformer,'indicator_') and transformer.add_indicator:
             # is this transformer one of the imputers & did it call the MissingIndicator?
